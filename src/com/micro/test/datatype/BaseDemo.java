@@ -11,10 +11,19 @@ package com.micro.test.datatype;
 public class BaseDemo {
 
     public static void main(String[] args) {
-        getBaseInfo();
+        BaseDemo demo = new BaseDemo();
+        //demo.getBaseInfo();
+
+        demo.outOperator();
     }
 
-    public static void getBaseInfo(){
+    public void outOperator(){
+        int i = 6;
+        int j = i++;
+        System.out.println("i="+i+", j="+j);
+    }
+
+    public void getBaseInfo(){
         System.out.println("java基本类型-整型：");
         System.out.println("Byte: "+Byte.SIZE / 8);
         System.out.println("Short: "+Short.SIZE / 8);

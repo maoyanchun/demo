@@ -34,10 +34,12 @@ public class ThreadDemo
         t1.start();
         t2.start();
 
+        threadDemo.fun1();
+
     }
 
     public void fun1(){
-        synchronized (new ThreadDemo()){
+        synchronized (this){
 
         }
     }
@@ -54,7 +56,7 @@ public class ThreadDemo
 
     //需要参与同步的代码
     public void fun4(Thread thread){
-        /*lock.lock();*/
+        lock.lock();
         if(lock.tryLock()){
             try {
                 System.out.println("线程名"+thread.getName() + "获得了锁");
