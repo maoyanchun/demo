@@ -12,9 +12,9 @@ public class BaseDemo {
 
     public static void main(String[] args) {
         BaseDemo demo = new BaseDemo();
-        //demo.getBaseInfo();
+        demo.getBaseInfo();
 
-        demo.outOperator();
+        //demo.outOperator();
     }
 
     public void outOperator(){

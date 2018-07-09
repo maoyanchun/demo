@@ -26,7 +26,6 @@ public class QuickSort {
         int temp = 0;
 
         while(l < r){
-
             while (arr[l] < pivot) l++;
             while(arr[r] > pivot) r--;
 
@@ -38,14 +37,11 @@ public class QuickSort {
 
             if(arr[l] == pivot) --r;
             if(arr[r] == pivot) ++l;
-
         }
-
         if(l == r){
             l++;
             r--;
         }
-
         if(left < r) sort(left, r, arr);
         if(right > l) sort(l, right, arr);
     }

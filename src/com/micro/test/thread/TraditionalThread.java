@@ -50,7 +50,7 @@ public class TraditionalThread {
                 System.out.println("Thread:"+Thread.currentThread().getName()+"正在运行");
             }
         };
-        //t3.start();
+        t3.start();
 
     }
 }
