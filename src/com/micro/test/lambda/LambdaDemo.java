@@ -5,6 +5,10 @@ package com.micro.test.lambda;
  */
 public class LambdaDemo {
     public static void main(String[] args) {
+        function1();
+    }
+
+    private static void function1() {
         System.out.println("jdk8.lambda...");
     }
 }
