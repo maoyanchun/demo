@@ -5,3 +5,8 @@ Object：wait()/notify()/notifyAll()
     
     Thread.Blocked状态 阻塞之后还要接受CPU分片
     Thread.waiting状态 阻塞之后不会占用CPU分片，不会占用CPU性能
+    
+lock.lock();
+    --lock.await();
+    --lock.signal()/lock.signalAll();
+lock.unlock();
