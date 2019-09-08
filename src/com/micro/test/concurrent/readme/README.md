@@ -11,11 +11,11 @@ lock.lock();
     --lock.signal()/lock.signalAll();
 lock.unlock();
 
--- ------
+-- ------20190903
 volatile关键字与多线程
 中间没有缓存区，直接从主存拿的数据
 
--- ------
+-- ------20190904
 
 AtomicInteger操作原理
 
@@ -44,4 +44,9 @@ public final boolean compareAndSet(int expect, int update){
 public final native boolean compareAndSwapInt(Object o, long offset,
                                                 int expected,
                                                 int x)
-                                                   
+-- ------20190908
+put(): int c = -1 表示队列数量未赋值    
+
+java.util.concurrent.locks.LockSupport    
+
+LockSupport线程阻塞与通知机制    
