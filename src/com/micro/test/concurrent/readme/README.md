@@ -7,7 +7,8 @@
         线程没有独立的存储空间，是和所属进程中的其它线程共享一个存储空间；一个进程可以拥有多个线程
         线程的本质是cpu分片运行，不是真正的同时执行！
         线程中的run()执行完，就会自动结束
-      
+
+
 java.lang.Thread.State (Enum)
 Thread t = new Thread();  //状态为Thread.NEW
 t.start();  //状态为Thread.RUNNABLE
@@ -17,9 +18,11 @@ t.start();  //状态为Thread.RUNNABLE
 Thread.BLOCKED   阻塞等待状态，需要占用cpu分片
 Thread.WAITING   等待状态，不占用cpu分片
 
+
 Synchronized与Lock
 Synchronized是Java JDK内置的关键字，JVM级别的，更为重要
 Lock是JDK后期扩展的线程操作的接口，使用lock()获得锁，必须使用unlock()解锁
+
 
 class ReentrantLock implements Lock, java.io.Serializable {...}
     一个可重入互斥Lock具有与使用synchronized方法和语句访问的隐式监视锁相同的基本行为和语义
@@ -27,6 +30,7 @@ interface ReadWriteLock {...}
 class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializable {...}
 public interface Lock {...}
 class ReentrantLock implements Lock, java.io.Serializable {...}
+
 
 interface ExecutorService extends Executor {...}
     ForkJoinPool
@@ -64,38 +68,51 @@ corePoolSize的数量=nThreads
 如果一次执行20个任务，线程池中会启动nThreads个线程，剩下的任务进入队列BlockingQueue。
 keepAliveTime=0，表示某个线程任务执行完毕后，马上检查是否还有其它任务
 最后线程池中的线程，即便没有任务，也会保留nThreads
-    
--- ------TODO...
 
-Condition
-Object：wait()/notify()/notifyAll()
-    wait -> Thread waiting
-    Condition.await() -> Thread waiting
-    
+
+interface Queue<E> extends Collection<E> 
+interface BlockingQueue<E> extends Queue<E>
+
+BlockingQueue的实现是线程安全的
+    解释：通过ReentrantLock中的Condition，来实现阻塞方式的添加元素，和阻塞式的提取元素
+生产者-消费者模式：
+    生产者插入的元素，多个消费者去抢。但是只有一个消费者能抢到
+    take()抢到后，马上移除元素    
+设计模式中的OBSERVER(观察者) - 对象行为型模式 （又称为PUB/SUB模式）
+    被观察者生成消息，会通知所有观察者（监听者）  （通知信息，会被所有的监听者收到）
+    采用对象引用通知的模式实现的
+JMS即Java消息服务（Java Message Service）中也有PUS/SUB：
+    分布式架构（异步消息通知）   
+JMS PTP(Point-To-Point)模式
+基于BlockingQueue实现的Producer-Consumer模式，与JMS模式中PTP模式基本一致
+
+
+ReentrantLock显示锁，可重入互斥锁(排它锁)，虽然是排它锁，但是等待时间可以设置tryLock(long timeout, TimeUnit unit)
+Synchronized隐式锁，排它锁，synchronized锁住资源后，其它线程只能是死等
+从ReentrantLock中创建监视器new Condition()， 功能与synchronized+Object中的wait()/notify()
+
+
+Object.wait() -> Thread waiting
+Condition.await() -> Thread waiting 
     Thread.Blocked状态 阻塞之后还要接受CPU分片
     Thread.waiting状态 阻塞之后不会占用CPU分片，不会占用CPU性能
     
 lock.lock();
-    --lock.await();
-    --lock.signal()/lock.signalAll();
+    --condition.await();
+    --condition.signal()/condition.signalAll();
 lock.unlock();
 
--- ------20190903
-volatile关键字与多线程
-中间没有缓存区，直接从主存拿的数据
 
--- ------20190904
+在多线程的环境下，要使用共享资源，要保证共享资源的多线程安全性，怎么办？
+1.Synchronized 隐式锁
+2.ReentrantLock 显示锁
+3.CAS  无锁方案，乐观锁的一种 （compareAndSwapInt() -- 比较并交换）
 
-AtomicInteger操作原理
 
+http://www.docjar.com/html/api/sun/misc/Unsafe.java.html
 native修饰的，没有具体代码实现，用其它语言实现的，比如C语言，java里面调，需要native修饰
-unsafe（C语言） jdk1.8
-jdk1.6看 getAndIncrement()  getAndDecrement()
-注意：CAS是compareAndSwapInt()
 
-public native long objectFieldOffset(Field f)
-//用ClassLoader加载class后，class中的每个属性，都有一个唯一的偏移量标识（这是相对，不是绝对）
-
+class AtomicInteger  采用CAS指令实现int值的原子更新
 public final int getAndIncrement(){
     for(;;){  //死循环
         int current = get();
@@ -108,17 +125,49 @@ public final int getAndIncrement(){
 public final boolean compareAndSet(int expect, int update){
     return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
 }
-
-//compareAndSwapInt(...) C语言写的
+//compareAndSwapInt(...) C语言写的 
+//用ClassLoader加载class后，class中的每个属性，都有一个唯一的偏移量标识（这是相对，不是绝对）
 public final native boolean compareAndSwapInt(Object o, long offset,
                                                 int expected,
                                                 int x)
--- ------20190908
-put(): int c = -1 表示队列数量未赋值    
+*/ Object o：当前对象的引用(指针) 
+1.Object o代表了实际内存的首地址(绝对地址)，offset表示属性的偏移量(相对地址)；这样通过CAS指令可以马上获得value的当前值
+  Object o, long offset这两个参数可以算出value在内存中的实际值
+  expected 是指value的当前值  int current = get();  --缓存值（实际内存随后可能被修改）
+2.return true 表示CAS替换成功（表示缓存值与内存当前值相同，即value没有被其它线程修改）
+3.如果多个线程同时进入compareAndSwapInt()会怎样？
+    这里没有锁，由CAS的机器指令来保证是原子操作
 
-java.util.concurrent.locks.LockSupport    
 
-LockSupport线程阻塞与通知机制 
+volatile关键字与多线程,中间没有缓存区，直接从主存拿的数据
+ReentrantLock
+Condition
+AtomicInteger
+CAS
+
+
+ArrayBlockingQueue 对比 LinkedBlockingQueue
+链接队列通常具有比基于阵列的队列更高的吞吐量，但在大多数并发应用程序中的可预测性能较低
+LinkedBlockingQueue 基于链表实现
+                    采用的是双锁机制（两个锁，两个监视器）
+                    put()和take()在同一时间，同一个队列中的put()和take()可以并行
+                    吞吐量好
+                    创建：LinkedBlockingQueue() 容量为Integer.MAX_VALUE；LinkedBlockingQueue(int capacity)    
+ArrayBlockingQueue 基于数组
+                   采用的是単锁机制（一个锁，两个监视器）
+                   put()和take()在同一时间，同一个队列中的put()和take()不能并行
+                   吞吐量差
+                   队列容量是固定的
+                   
+
+java.util.concurrent.locks.LockSupport  线程阻塞与通知机制 
+static void park(Object blocker)
+        禁止当前线程进行线程调度，除非许可证可用（如果当前线程有许可证，就不会阻塞）
+static void unpark(Thread thread)
+        为给定的线程提供许可证（如果尚未完成）
+
+
+//TODO...
 
 -- ------20190910
 SynchronousQueue

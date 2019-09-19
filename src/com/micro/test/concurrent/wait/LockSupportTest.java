@@ -11,6 +11,7 @@ public class LockSupportTest {
 
     public static void main(String[] args) {
 
+        //线程t
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -19,13 +20,15 @@ public class LockSupportTest {
                     sum += i;
                 }
                 LockSupport.park(); //阻塞当前线程（除非当前线程有许可证）
-                System.out.println("sum = " + sum);
+                System.out.println("Thread---" + Thread.currentThread().getId() + "---sum = " + sum);
             }
         });
         t.start();
 
         try {
-//            Thread.sleep(2000);   //主线程阻塞2s
+            System.out.println("Main Thread---" + Thread.currentThread().getId());
+            //主线程阻塞2s
+            Thread.sleep(3000);
         } catch (Exception e) {
 
         }

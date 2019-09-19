@@ -26,25 +26,24 @@ public class ReentrantWaitTest {
                 try {
                     locker.lock();  //必须要提前锁定
                     condition.await();  //阻塞当前线程
-
+                    System.out.println("sum = " + sum);
                 } catch (Exception e) {
 
-                }finally {
+                } finally {
                     locker.unlock();
                 }
-
-                System.out.println("sum = " + sum);
             }
         }).start();
 
         try {
-            Thread.sleep(2000);
+            System.out.println("Main Thread---" + Thread.currentThread().getId());
+            Thread.sleep(5000);
             locker.lock();
             condition.signal(); //通知监视器解锁
 
         } catch (Exception e) {
 
-        }finally {
+        } finally {
             locker.unlock();
         }
     }

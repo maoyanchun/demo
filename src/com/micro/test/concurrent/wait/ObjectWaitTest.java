@@ -6,7 +6,7 @@ package com.micro.test.concurrent.wait;
  * <p>
  * Created by mycge at 23:45 on 2019-09-08.
  */
-public class WaitTest {
+public class ObjectWaitTest {
 
     public static void main(String[] args) {
         Object obj = new Object();
@@ -22,11 +22,11 @@ public class WaitTest {
                     synchronized (obj) {
                         obj.wait();
                     }
+                    System.out.println("sum = " + sum);
                 } catch (Exception e) {
 
                 }
 
-                System.out.println("sum = " + sum);
             }
         }).start();
 

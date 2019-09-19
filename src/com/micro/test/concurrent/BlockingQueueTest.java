@@ -2,7 +2,6 @@ package com.micro.test.concurrent;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * Description: 阻塞队列（实现是线程安全的）
@@ -20,8 +19,8 @@ public class BlockingQueueTest {
         Consumer c1 = new Consumer(q);
         Consumer c2 = new Consumer(q);
         new Thread(p).start();
-//        new Thread(c1).start();
-//        new Thread(c2).start();
+        new Thread(c1).start();
+        new Thread(c2).start();
     }
 }
 
