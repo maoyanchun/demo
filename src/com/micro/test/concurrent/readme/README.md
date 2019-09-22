@@ -37,7 +37,7 @@ interface ExecutorService extends Executor {...}
     ScheduledThreadPoolExecutor
     ThreadPoolExecutor(最重要)
 线程池工具类：Executors 
-    ExecutorService newCachedThreadPool()  //无界线程池
+    ExecutorService newCachedThreadPool()  //无界线程池；为了执行大量短时任务，专门设计的线程池
     ExecutorService newFixedThreadPool(int nThreads)  //有界线程池
     ExecutorService newSingleThreadExecutor()  //单一线程池
     ScheduledExecutorService newScheduledThreadPool(int corePoolSize)
@@ -139,7 +139,7 @@ public final native boolean compareAndSwapInt(Object o, long offset,
     这里没有锁，由CAS的机器指令来保证是原子操作
 
 
-volatile关键字与多线程,中间没有缓存区，直接从主存拿的数据
+volatile关键字与多线程（中间没有缓存区，直接从主存拿的数据）
 ReentrantLock
 Condition
 AtomicInteger
@@ -167,27 +167,66 @@ static void unpark(Thread thread)
         为给定的线程提供许可证（如果尚未完成）
 
 
-//TODO...
-
--- ------20190910
 SynchronousQueue
+    该队列的put()和take()必须成对出现
+    同步队列没有任何内部容量，甚至没有一个容量 --size=0
+    不能peek在同步队列，因为一个元素，当你尝试删除它才存在
+    无法插入元素（使用任何方法），除非另有线程正在尝试删除它
+    不能迭代，因为没有什么可以迭代
+    队列的头部是第一个排队的插入线程尝试添加到队列的元素
+    它们非常适合切换设计，其中运行在一个线程中的对象必须与另一个线程中运行的对象同步，以便交付一些信息，事件或任务
+    总结：SynchronousQueue<E>主要用于把某个线程中的一个对象，安全的交付到另外一个线程
+            线程A->>put(E e)    线程B->>take()
 
-newCachedThreadPool   
 
--- ------20190917
-java.util.ConcurrentModificationException  并发修改异常
+AQS原理：
+public abstract class AbstractQueuedSynchronizer
+    extends AbstractOwnableSynchronizer
+    implements java.io.Serializable {...}
 
-Collections  
+public class Semaphore implements java.io.Serializable {
+    public void acquire() throws InterruptedException {
+            sync.acquireSharedInterruptibly(1);  //共享模式获取资源
+        }
+    public void release() {
+            sync.releaseShared(1);
+        }
+}
 
-订单号生成
+public class ReentrantLock implements Lock, java.io.Serializable {
+    public void lock() {
+            sync.lock();    //独占模式获取资源
+        }
+    public void unlock() {
+            sync.release(1);
+        }
+}
+
+public class CountDownLatch {
+    public void await() throws InterruptedException {
+            sync.acquireSharedInterruptibly(1);  //共享模式获取资源
+        }
+    public void countDown() {
+            sync.releaseShared(1);
+        }
+}
+
+
+synchronized: moniterentor......monitorexit 监视器所
+
+//数据库连接
+private static ThreadLocal<Connection> threadLocal = new ThreadLocal<>(); //单例对象
+//页面访问次数
+AtomicInteger allPageView = new AtomicInteger(0);
+
+Collections工具类
+
+天猫、京东订单号生成（并发量很高，数据库集群、分库）
 Mysql
 Oracle
-并发量很高，数据库集群，分库，想区一个随时增长又不冲突的序列号
-像天猫、京东，从订单服务中心获取唯一号，再插入库中
-
-OrderInfo oi = order.getInstance();
-AtomicLong al = new AtomicLong(oi.getOrderAinitialValue());
-al.getAndIncrement()
-
-如果服务器宕机，AtomicLong就会从新开始，会产生冲突，把它配置在配置文件中，重启时再延续增加
-order.properties
+想取一个随时增长又不冲突的序列号；从订单服务中心获取唯一号，再插入库中
+/*
+ * AtomicLong al = new AtomicLong(oi.getOrderAinitialValue());
+ * al.getAndIncrement()
+*/
+如果服务器宕机，AtomicLong就会从新开始，会产生冲突，可以把它配置在配置文件中（order.properties），重启时再延续增加。

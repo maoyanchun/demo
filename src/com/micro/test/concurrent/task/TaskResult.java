@@ -15,6 +15,8 @@ public class TaskResult implements Callable<String> {
 
     @Override
     public String call() throws Exception {
+        System.out.println(Thread.currentThread().getId()+"---output---"+i);
+
         Thread.sleep(300);
 
         return Thread.currentThread().getId()+"---output---"+i;
