@@ -2,6 +2,7 @@ package com.micro.test.concurrent;
 
 /**
  * Description:
+ *      线程中断：2.循环判断中断状态
  * Created by mycge at 16:01 on 2019-09-21.
  */
 public class ThreadInterrupt2Test {

@@ -2,6 +2,7 @@ package com.micro.test.concurrent;
 
 /**
  * Description:
+ *      线程中断：1.中断异常
  * Created by mycge at 15:44 on 2019-09-21.
  */
 public class ThreadInterruptTest {

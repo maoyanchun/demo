@@ -138,12 +138,11 @@ public final native boolean compareAndSwapInt(Object o, long offset,
 3.如果多个线程同时进入compareAndSwapInt()会怎样？
     这里没有锁，由CAS的机器指令来保证是原子操作
 
-
 volatile关键字与多线程（中间没有缓存区，直接从主存拿的数据）
-ReentrantLock
-Condition
-AtomicInteger
-CAS
+synchronized: moniterentor......monitorexit 监视器锁
+Synchronized锁的是多个线程共享的一个资源，ReentrantLock在多线程里阻塞某一个线程，形成这种显示锁
+
+大量请求到达Tomcat服务器，有一个监听线程，socket连接（Executors.newSingleThreadExecutor()）
 
 
 ArrayBlockingQueue 对比 LinkedBlockingQueue
@@ -158,7 +157,7 @@ ArrayBlockingQueue 基于数组
                    put()和take()在同一时间，同一个队列中的put()和take()不能并行
                    吞吐量差
                    队列容量是固定的
-                   
+
 
 java.util.concurrent.locks.LockSupport  线程阻塞与通知机制 
 static void park(Object blocker)
@@ -179,7 +178,8 @@ SynchronousQueue
             线程A->>put(E e)    线程B->>take()
 
 
-AQS原理：
+AQS原理：AQS的底层用的CAS算法（unsafe）
+AQS的关键点就是一群排队的node节点去共享一个整形的状态state值，它的三个基本实现点Semaphore、Reentrantlock、Countdownlatch
 public abstract class AbstractQueuedSynchronizer
     extends AbstractOwnableSynchronizer
     implements java.io.Serializable {...}
@@ -211,8 +211,6 @@ public class CountDownLatch {
         }
 }
 
-
-synchronized: moniterentor......monitorexit 监视器所
 
 //数据库连接
 private static ThreadLocal<Connection> threadLocal = new ThreadLocal<>(); //单例对象
