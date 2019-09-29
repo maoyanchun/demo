@@ -3,10 +3,7 @@ package com.micro.test.date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.MonthDay;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 
 import java.util.Calendar;
@@ -39,16 +36,49 @@ public class LocalDateTest {
 //        function1();
 
         /*JDK8*/
-        function2();
+//        function2();
+        function3();
     }
 
-    private static void function1() {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.YEAR, 1);
-        cal.add(Calendar.MONTH, -1);
-        cal.add(Calendar.DAY_OF_MONTH, 4);
-        Date date = cal.getTime();
-        System.out.println(THREAD_LOCAL.get().format(date));
+    private static void function3() {
+//        System.out.println(System.currentTimeMillis());
+
+        Clock clock = Clock.systemUTC();
+        System.out.println("clock: " + clock);
+        Clock defaultClock = Clock.systemDefaultZone();
+        System.out.println("defaultClock: " + defaultClock);
+
+        LocalDate now = LocalDate.now();
+        LocalDate tomorrow = LocalDate.of(2019, 10, 1);
+        if (tomorrow.isAfter(now)) {
+            System.out.println("tomorrow comes after today...");
+        }
+        LocalDate yesterday = now.minus(1, ChronoUnit.DAYS);
+        if (yesterday.isBefore(now)) {
+            System.out.println("yesterday is day before today...");
+        }
+
+        ZoneId america = ZoneId.of("America/New_York");
+        LocalDateTime localtDateAndTime = LocalDateTime.now();
+        ZonedDateTime dateAndTimeInNewYork = ZonedDateTime.of(localtDateAndTime, america);
+        System.out.println("Current datetime in a particular timezone : " + dateAndTimeInNewYork);
+
+        YearMonth yearMonth = YearMonth.now();
+        System.out.println(String.format("yearMonth: %s, days: %s", yearMonth, yearMonth.lengthOfMonth()));
+        YearMonth creditCardExpiry = YearMonth.of(2019, Month.DECEMBER);
+        System.out.println("creditCardExpiry: " + creditCardExpiry);
+
+        /*闰年*/
+        if (LocalDate.of(2024, 1, 2).isLeapYear()) {
+            System.out.println("This year is Leap Year");
+        } else {
+            System.out.println("This year is not Leap Year");
+        }
+
+//        示例 15、计算两个日期之间的天数和月数  TODO...
+
+
+
     }
 
     private static void function2() {
@@ -91,10 +121,15 @@ public class LocalDateTest {
 
         LocalDateTime localDateTime = LocalDateTime.now();
         System.out.println("localDateTime=" + localDateTime);
+    }
 
-        //示例 10、使用Java 8的Clock时钟类  TODO...
-
-
+    private static void function1() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.YEAR, 1);
+        cal.add(Calendar.MONTH, -1);
+        cal.add(Calendar.DAY_OF_MONTH, 4);
+        Date date = cal.getTime();
+        System.out.println(THREAD_LOCAL.get().format(date));
     }
 
 }
