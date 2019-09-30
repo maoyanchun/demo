@@ -2,10 +2,10 @@ package com.micro.test.date;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-
 import java.util.Calendar;
 import java.util.Date;
 
@@ -37,7 +37,54 @@ public class LocalDateTest {
 
         /*JDK8*/
 //        function2();
-        function3();
+//        function3();
+//        function4();
+        function5();
+    }
+
+    private static void function5() {
+        String dateStr = "20180801";
+        LocalDate formatted = LocalDate.parse(dateStr, DateTimeFormatter.BASIC_ISO_DATE);
+        System.out.println("DateTimeFormatter.BASIC_ISO_DATE------" + formatted);
+
+        String goodFriday = "09 30 2019";
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM dd yyyy");
+            LocalDate holiday = LocalDate.parse(goodFriday, formatter);
+            System.out.printf("LocalDate.parse------%s", holiday);
+        } catch (DateTimeParseException ex) {
+            ex.printStackTrace();
+        }
+        /*换行*/
+        System.out.println();
+
+        LocalDateTime arrivalDate = LocalDateTime.now();
+        try {
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:MM:ss");
+            String landing = arrivalDate.format(format);
+            System.out.printf("arrivalDate.format------%s", landing);
+        } catch (DateTimeException ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private static void function4() {
+        LocalDate now = LocalDate.now();
+
+        LocalDate pastDate = LocalDate.of(2015, 6, 30);
+        Period period = Period.between(pastDate, now);
+        System.out.println("period------months: " + period.getMonths() + ", days: " + period.getDays());
+
+        LocalDateTime localDateTime = LocalDateTime.of(2017, 8, 29, 18, 25);
+        ZoneOffset zoneOffset = ZoneOffset.of("+05:30");
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(localDateTime, zoneOffset);
+        System.out.println("offsetDateTime=" + offsetDateTime);
+
+        Instant instant = Instant.now();
+        System.out.println("instant------" + instant);
+        System.out.println("translate date------" + Date.from(instant));
+        System.out.println("translate instant------" + new Date().toInstant());
     }
 
     private static void function3() {
@@ -74,11 +121,6 @@ public class LocalDateTest {
         } else {
             System.out.println("This year is not Leap Year");
         }
-
-//        示例 15、计算两个日期之间的天数和月数  TODO...
-
-
-
     }
 
     private static void function2() {
